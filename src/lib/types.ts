@@ -4,10 +4,7 @@ export type StringMap = { [key: string]: string }
 
 export type SpecRpcClientOptions = {
     origin?: string
-}
-
-export type AuthOptions = {
-    token: string
+    authToken?: string
 }
 
 export type Address = string
