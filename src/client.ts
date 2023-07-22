@@ -6,8 +6,8 @@ import {
     Address,
     AbiItem,
     MetadataProtocolId,
-    ContractCallResponseData,
-    ResolveMetadataResponseData,
+    ContractCallResponse,
+    ResolveMetadataResponse,
 } from './lib/types'
 
 const DEFAULT_OPTIONS = {
@@ -60,26 +60,26 @@ class SpecRpcClient {
         contractAddress: Address,
         abi: AbiItem | string,
         inputs: any[]
-    ): Promise<ContractCallResponseData> {
+    ): Promise<ContractCallResponse> {
         return (await this._performRequest(this.callUrl, {
             chainId,
             contractAddress,
             abi,
             inputs,
-        })) as ContractCallResponseData
+        })) as ContractCallResponse
     }
 
     /**
      * Resolve off-chain metadata.
      */
     async resolveMetadata(
-        protocolId: MetadataProtocolId,
-        pointer: string
-    ): Promise<ResolveMetadataResponseData> {
+        pointer: string,
+        protocolId?: MetadataProtocolId
+    ): Promise<ResolveMetadataResponse> {
         return (await this._performRequest(this.metadataUrl, {
-            protocolId,
             pointer,
-        })) as ResolveMetadataResponseData
+            protocolId,
+        })) as ResolveMetadataResponse
     }
 
     /**

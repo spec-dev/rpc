@@ -13,12 +13,12 @@ export type ChainId = string
 
 export type MetadataProtocolId = number
 
-export interface ContractCallResponseData {
+export interface ContractCallResponse {
     outputs: StringKeyMap
     outputArgs: any[]
 }
 
-export interface ResolveMetadataResponseData {
+export interface ResolveMetadataResponse {
     metadata: StringKeyMap | null
 }
 
