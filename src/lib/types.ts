@@ -9,9 +9,9 @@ export type SpecRpcClientOptions = {
 
 export type Address = string
 
-export type ChainId = string
+export type ChainId = string | number
 
-export type MetadataProtocolId = number
+export type MetaProtocolId = string | number
 
 export interface ContractCallResponse {
     outputs: StringKeyMap
@@ -44,13 +44,13 @@ export enum AbiItemStateMutability {
 
 export interface AbiItem {
     name: string
-    type: AbiItemType
+    type: AbiItemType | string
     inputs: AbiItemInput[]
     signature?: string
     constant?: boolean
     outputs?: AbiItemOutput[]
     payable?: boolean
-    stateMutability?: AbiItemStateMutability
+    stateMutability?: AbiItemStateMutability | string
     anonymous?: boolean
 }
 

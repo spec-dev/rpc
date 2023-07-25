@@ -5,7 +5,7 @@ import {
     ChainId,
     Address,
     AbiItem,
-    MetadataProtocolId,
+    MetaProtocolId,
     ContractCallResponse,
 } from './lib/types'
 import { RequestError } from './lib/errors'
@@ -72,7 +72,7 @@ class SpecRpcClient {
     /**
      * Resolve off-chain metadata.
      */
-    async resolveMetadata(pointer: string, protocolId?: MetadataProtocolId): Promise<StringKeyMap> {
+    async resolveMetadata(pointer: string, protocolId?: MetaProtocolId): Promise<StringKeyMap> {
         return await this._performRequest(this.metadataUrl, {
             pointer,
             protocolId,
