@@ -7,8 +7,8 @@ import {
     AbiItem,
     MetadataProtocolId,
     ContractCallResponse,
-    ResolveMetadataResponse,
 } from './lib/types'
+import { RequestError } from './lib/errors'
 
 const DEFAULT_OPTIONS = {
     origin: config.API_ORIGIN,
@@ -58,13 +58,13 @@ class SpecRpcClient {
     async call(
         chainId: ChainId,
         contractAddress: Address,
-        abi: AbiItem | string,
+        abiItem: AbiItem | string,
         inputs: any[]
     ): Promise<ContractCallResponse> {
         return (await this._performRequest(this.callUrl, {
             chainId,
             contractAddress,
-            abi,
+            abiItem,
             inputs,
         })) as ContractCallResponse
     }
@@ -72,18 +72,15 @@ class SpecRpcClient {
     /**
      * Resolve off-chain metadata.
      */
-    async resolveMetadata(
-        pointer: string,
-        protocolId?: MetadataProtocolId
-    ): Promise<ResolveMetadataResponse> {
-        return (await this._performRequest(this.metadataUrl, {
+    async resolveMetadata(pointer: string, protocolId?: MetadataProtocolId): Promise<StringKeyMap> {
+        return await this._performRequest(this.metadataUrl, {
             pointer,
             protocolId,
-        })) as ResolveMetadataResponse
+        })
     }
 
     /**
-     * Perform a query and return the JSON-parsed result.
+     * Perform request with auto-retries.
      */
     async _performRequest(
         url: string,
@@ -93,9 +90,9 @@ class SpecRpcClient {
         const abortController = new AbortController()
         const timer = setTimeout(() => abortController.abort(), config.REQUEST_TIMEOUT)
 
-        let resp
+        let data
         try {
-            resp = await this._fetch(url, payload, abortController)
+            data = await this._post(url, payload, abortController)
         } catch (err) {
             clearTimeout(timer)
             const message = err.message || err.toString() || ''
@@ -110,27 +107,31 @@ class SpecRpcClient {
         }
         clearTimeout(timer)
 
-        return this._parseResponse(resp)
+        return data
     }
 
     /**
-     * POST fetch.
+     * Perform HTTP POST.
      */
-    async _fetch(
+    async _post(
         url: string,
         payload: StringKeyMap | StringKeyMap[],
         abortController: AbortController
-    ): Promise<Response> {
-        try {
-            return await fetch(url, {
-                method: 'POST',
-                headers: this._buildHeaders(),
-                body: JSON.stringify(payload),
-                signal: abortController.signal,
-            })
-        } catch (err) {
-            throw `RPC request error - ${err}`
+    ): Promise<StringKeyMap> {
+        const resp = await fetch(url, {
+            method: 'POST',
+            headers: this._buildHeaders(),
+            body: JSON.stringify(payload),
+            signal: abortController.signal,
+        })
+
+        const { data, error } = (await resp.json()) || {}
+
+        if (resp.status !== 200 || error) {
+            throw new RequestError(error?.message || 'unknown error', error?.code || resp.status)
         }
+
+        return data
     }
 
     /**
@@ -144,17 +145,6 @@ class SpecRpcClient {
                   [config.AUTH_HEADER_NAME]: this.authToken,
               }
             : baseHeaders
-    }
-
-    /**
-     * Parse JSON HTTP response.
-     */
-    async _parseResponse(resp: Response): Promise<StringKeyMap[]> {
-        try {
-            return (await resp.json()) || []
-        } catch (err) {
-            throw `Failed to parse JSON response data: ${err}`
-        }
     }
 }
 

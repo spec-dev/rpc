@@ -18,10 +18,6 @@ export interface ContractCallResponse {
     outputArgs: any[]
 }
 
-export interface ResolveMetadataResponse {
-    metadata: StringKeyMap | null
-}
-
 export interface AbiItemInput {
     type: string
     name?: string
@@ -50,7 +46,7 @@ export interface AbiItem {
     name: string
     type: AbiItemType
     inputs: AbiItemInput[]
-    signature: string
+    signature?: string
     constant?: boolean
     outputs?: AbiItemOutput[]
     payable?: boolean
