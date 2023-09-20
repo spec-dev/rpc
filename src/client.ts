@@ -37,6 +37,12 @@ class SpecRpcClient {
         return url.toString()
     }
 
+    get erc20TokenMetadataUrl(): string {
+        const url = new URL(this.origin)
+        url.pathname = '/erc20-token-metadata'
+        return url.toString()
+    }
+
     get requestHeaders(): StringKeyMap {
         return {
             'Content-Type': 'application/json',
@@ -76,6 +82,16 @@ class SpecRpcClient {
         return await this._performRequest(this.metadataUrl, {
             pointer,
             protocolId,
+        })
+    }
+
+    /**
+     * Get name/symbol/decimals information about an ERC-20 token.
+     */
+    async getERC20TokenMetadata(chainId: ChainId, tokenAddress: Address): Promise<StringKeyMap> {
+        return await this._performRequest(this.erc20TokenMetadataUrl, {
+            chainId,
+            tokenAddress,
         })
     }
 
